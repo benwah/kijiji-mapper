@@ -1,0 +1,14 @@
+# Emacs ignore
+*~
+.\#*
+*\#
+
+secrets.yml
+map.html
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+kijiji_mapper.egg-info/

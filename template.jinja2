@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Info windows</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+    function bindInfoWindow(marker, map, infowindow, html) {
+        marker.addListener('click', function() {
+            infowindow.setContent(html);
+            infowindow.open(map, this);
+        });
+    } 
+
+    function initMap() {
+        var uluru = {lng: -75.6919, lat: 45.4214};
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+            center: uluru
+        });
+        var appartments = {{ appartments }};
+        window.appartments = appartments;
+
+        for (apt_idx in appartments) {
+            appartment = appartments[apt_idx];
+
+            if (appartment.lat_long == null) {
+                continue;
+            }
+
+            var contentString = '<div id="content">' + 
+                '<h4>' + appartment.title + '</h4>' +
+                '<h5>$' + appartment.price + '</h5>' +
+                '<p>' + appartment.description + '</p>' +
+                '<a href="' + appartment.link + '">Link</a>' +
+                '</div>';
+
+            infowindow = new google.maps.InfoWindow();
+
+            marker = new google.maps.Marker({
+                position: {lat: appartment.lat_long[0], lng: appartment.lat_long[1]},
+                map: map,
+                title: appartment.title
+            });
+            bindInfoWindow(marker, map, infowindow, contentString);
+        }
+    }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ js_api_key }}&signed_in=true&callback=initMap">
+    </script>
+  </body>
+</html>
