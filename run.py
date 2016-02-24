@@ -15,6 +15,7 @@ DEFAULT_PAGES = 40
 DEFAULT_URL_TEMPLATE = (
     'http://www.kijiji.ca/b-2-bedroom-apartments-condos/ottawa/{page}c214l1700'
     '185')
+DEFAULT_MAP_CENTER = [45.4214, -75.6919]
 TEMPLATE_NAME = 'template.jinja2'
 
 
@@ -102,7 +103,8 @@ def render_map(appartments):
         template = Template(template_file.read())
         return template.render(
             appartments=appartments,
-            js_api_key=JS_API_KEY
+            js_api_key=JS_API_KEY,
+            map_center=DEFAULT_MAP_CENTER,
         )
 
 
