@@ -11,18 +11,21 @@ SETTINGS = yaml.load(open('secrets.yml', 'r').read())
 API_KEY = SETTINGS['geolocation_api_key']
 JS_API_KEY = SETTINGS['geolocation_js_api_key']
 GOOGLE_MAPS_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
-DEFAULT_PAGES = 40
+DEFAULT_PAGES = 10
 DEFAULT_URL_TEMPLATE = (
     'http://www.kijiji.ca/b-2-bedroom-apartments-condos/ottawa/{page}c214l1700'
     '185')
 DEFAULT_MAP_CENTER = [45.4214, -75.6919]
 TEMPLATE_NAME = 'template.jinja2'
+FAKE_USER_AGENT = (
+    'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like '
+    'Gecko) Chrome/40.0.2214.85 Safari/537.36')
 
 
-def geolocate(address, api_key=API_KEY):
+def geolocate(address):
     payload = {
         "address": address,
-        "key": api_key
+        "key": API_KEY,
     }
 
     result = requests.get(GOOGLE_MAPS_URL, params=payload)
@@ -38,7 +41,7 @@ def geolocate(address, api_key=API_KEY):
     return [latlong['lat'], latlong['lng']]
 
 
-def urls(template, pages=10):
+def urls(template, pages):
     yield template.format(page='')
 
     if pages == 1:
@@ -49,7 +52,7 @@ def urls(template, pages=10):
 
 
 def get_details(url):
-    response = requests.get(url)
+    response = requests.get(url, headers={'User-Agent': FAKE_USER_AGENT})
     content = response.content
     soup = BeautifulSoup(content, 'html.parser')
 
@@ -57,6 +60,7 @@ def get_details(url):
         'price': None,
         'address': None,
         'lat_long': None,
+        'date': None,
     }
 
     price_el = soup.find('span', attrs={'itemprop': 'price'}).find('strong')
@@ -70,6 +74,8 @@ def get_details(url):
     if address_el:
         details['address'] = address_el.text.split("\n")[0]
         details['lat_long'] = geolocate(details['address'])
+
+    details['date'] = soup.find('th', text='Date Listed').next.next.next.text
 
     return details
 
@@ -95,6 +101,7 @@ def get_posts(url):
             'address': details['address'],
             'price': details['price'],
             'lat_long': details['lat_long'],
+            'date': details['date'],
         })
 
 
@@ -113,7 +120,7 @@ def run():
 
     appartments = []
 
-    for url in urls(template, pages=DEFAULT_PAGES):
+    for url in urls(template, DEFAULT_PAGES):
         print("Processing {url}".format(url=url))
         for appartment in get_posts(url):
             appartments.append(appartment)
