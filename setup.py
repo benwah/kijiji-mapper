@@ -16,4 +16,10 @@ setup(
     author_email='benoitcsirois at the gmails',
     license='MIT',
     packages=find_packages(),
-    zip_safe=False)
+    zip_safe=False,
+    entry_points = {
+        'console_scripts': [
+            'kijiji-mapper = kijiji_mapper.runner:run',
+        ],
+    },)
+
