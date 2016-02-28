@@ -19,7 +19,7 @@
     <div id="map"></div>
     <script>
     function bindInfoWindow(marker, map, infowindow, html) {
-        marker.addListener('click', function() {
+        marker.addListener('mousedown', function() {
             infowindow.setContent(html);
             infowindow.open(map, this);
         });
@@ -53,7 +53,8 @@
             marker = new google.maps.Marker({
                 position: {lat: appartment.lat_long[0], lng: appartment.lat_long[1]},
                 map: map,
-                title: appartment.title
+                title: appartment.title,
+                optimized: false
             });
             bindInfoWindow(marker, map, infowindow, contentString);
         }
